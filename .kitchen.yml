@@ -1,0 +1,30 @@
+---
+driver:
+  name: vagrant
+  provision: true
+  vm_hostname: apache
+
+provisioner:
+  name: ansible_playbook
+  playbook: ansible/default.yml
+  roles_path: ansible/roles
+  additional_copy_path:
+    - ansible/templates
+    - index.html
+  ansible_verbose: true
+  ansible_verbosity: 3
+  hosts: all
+  extra_vars:
+    app_to_deploy: index.html
+
+verifier:
+  ruby_bindir: '/usr/bin'
+
+platforms:
+  - name: trusty64
+    driver_config:
+      box: ubuntu/trusty64
+      box_url: https://atlas.hashicorp.com/ubuntu/trusty64
+
+suites:
+  - name: default

@@ -1,0 +1,55 @@
+---
+
+- hosts: all
+  sudo: yes
+
+  vars:
+    app_to_deploy: "../index.html"
+
+  pre_tasks:
+    - apt: "name={{ item }} state=installed"
+      with_items:
+        - git
+        - curl
+        - vim
+        - python-pycurl
+
+  roles:
+    - { role: geerlingguy.apache,
+        apache_create_vhosts: false }
+
+  tasks:
+    - name: Create the Apache vhost
+      template:
+        src: "{{ playbook_dir }}/templates/hello_world_vhost.conf.j2"
+        dest: "{{ apache_conf_path }}/sites-available/hello_world_vhost.conf"
+        owner: root
+        group: root
+        mode: 0644
+
+    - name : Disable the default vhost
+      file:
+        path: "{{ apache_conf_path }}/sites-enabled/000-default.conf"
+        state: absent
+      notify:
+        - restart apache
+
+    - name: Enable the Apache vhost
+      file:
+        src: "{{ apache_conf_path }}/sites-available/hello_world_vhost.conf"
+        dest: "{{ apache_conf_path }}/sites-enabled/hello_world_vhost.conf"
+        state: link
+      notify:
+        - restart apache
+
+    - name: Remove default Apache Ubuntu html dir
+      file:
+        path: "/var/www/html"
+        state: absent
+      notify:
+        - restart apache
+
+    - name: Deploy the web application
+      copy:
+        src: "{{ app_to_deploy }}"
+        dest: "/var/www/index.html"
