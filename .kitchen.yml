@@ -6,7 +6,7 @@ driver:
 
 provisioner:
   name: ansible_playbook
-  playbook: ansible/default.yml
+  playbook: ansible/playbook.yml
   roles_path: ansible/roles
   additional_copy_path:
     - ansible/templates
