@@ -2,8 +2,7 @@ require 'spec_helper'
 require 'net/http'
 require 'uri'
 
-describe 'Apache webserver' do
-
+describe 'Apache' do
   describe service('apache2') do
     it { should be_enabled }
     it { should be_running }
@@ -13,7 +12,7 @@ describe 'Apache webserver' do
     it { should be_listening }
   end
 
-  describe 'virtual host config' do
+  describe 'the Apache virtual host config' do
     describe file('/etc/apache2/sites-enabled/000-default.conf') do
       it { should_not be_symlink }
       it { should_not be_file }
@@ -30,12 +29,10 @@ describe 'Apache webserver' do
   end
 
   describe 'the hello world application' do
-    before do
-      @hello_world = Net::HTTP.get(URI('http://localhost:80'))
-    end
+    let(:hello_world) { Net::HTTP.get(URI('http://localhost:80')) }
 
-    it 'is served by Apache' do
-      expect(@hello_world.include? '<h1>Hello World!</h1>').to eq true
+    it 'is served by Apache at the root path' do
+      expect(hello_world.include? '<h1>Hello World!</h1>').to eq true
     end
   end
 end
